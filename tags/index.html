@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="一个懒人， 做点记录。">
-    <meta name="keyword"  content="">
+    <meta name="keyword" content="">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
     <title>
@@ -45,7 +45,7 @@
 <div class="nav" id="nav">
     <div class="avatar-name">
         <div class="avatar">
-            <img src="/img/avatar.png" />
+            <img src="/img/avatar.png">
         </div>
         <div class="name">
             <i>很懒，很丧</i>
@@ -53,35 +53,35 @@
     </div>
     <div class="contents" id="nav-content">
         <ul>
-            <li >
+            <li>
                 <a href="/">
                     <i class="iconfont icon-shouye1"></i>
-                    <span>主页</span>
+                    <span>HOME</span>
                 </a>
             </li>
-            <li  class=active >
+            <li class="active">
                 <a href="/tags">
                     <i class="iconfont icon-biaoqian1"></i>
-                    <span>标签</span>
+                    <span>TAGS</span>
                 </a>
             </li>
-            <li >
+            <li>
                 <a href="/archives">
                     <i class="iconfont icon-guidang2"></i>
-                    <span>存档</span>
+                    <span>ARCHIVES</span>
                 </a>
             </li>
-            <li >
+            <li>
                 <a href="/about/">
                     <i class="iconfont icon-guanyu2"></i>
-                    <span>关于</span>
+                    <span>ABOUT</span>
                 </a>
             </li>
             
             <li>
                 <a id="search">
                     <i class="iconfont icon-sousuo1"></i>
-                    <span>搜索</span>
+                    <span>SEARCH</span>
                 </a>
             </li>
             
@@ -95,8 +95,8 @@
     <div class="search-container">
         <div class="search-input">
             <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
-            <input id="search-input"/>
-            <span id="begin-search">搜索</span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
         </div>
         <div class="search-result-container" id="search-result-container">
 
@@ -111,7 +111,7 @@
     <div class="index-middle">
         <!-- Main Content -->
         
-<div id='tag_cloud' class="tags">
+<div id="tag_cloud" class="tags">
     
     <a href="#Java" title="Java" rel="6">Java</a>
     
@@ -134,6 +134,20 @@
                 <span class="fa fa-tag listing-seperator" id="Java">
                     <span class="tag-text">Java</span>
                 </span>
+    
+    <!-- <li class="listing-item">
+    <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
+    <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
+    </li> -->
+    <div class="post-preview">
+        <a href="/2018/09/21/AQS-0/">
+            <h2 class="post-title">
+                AQS浅析(一)
+            </h2>
+            
+        </a>
+        <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
+    </div>
     
     <!-- <li class="listing-item">
     <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
@@ -168,23 +182,9 @@
     <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
     </li> -->
     <div class="post-preview">
-        <a href="/2018/09/21/AQS-0/">
+        <a href="/2018/07/02/threadpool-0/">
             <h2 class="post-title">
-                AQS浅析(一)
-            </h2>
-            
-        </a>
-        <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-    </div>
-    
-    <!-- <li class="listing-item">
-    <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-    <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-    </li> -->
-    <div class="post-preview">
-        <a href="/2018/07/28/threadpool-2/">
-            <h2 class="post-title">
-                浅谈线程池——ThreadPoolExecutor源码浅析(二)
+                浅谈线程池——Java中的线程池
             </h2>
             
         </a>
@@ -210,9 +210,9 @@
     <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
     </li> -->
     <div class="post-preview">
-        <a href="/2018/07/02/threadpool-0/">
+        <a href="/2018/07/28/threadpool-2/">
             <h2 class="post-title">
-                浅谈线程池——Java中的线程池
+                浅谈线程池——ThreadPoolExecutor源码浅析(二)
             </h2>
             
         </a>
@@ -225,20 +225,6 @@
                 <span class="fa fa-tag listing-seperator" id="分布式">
                     <span class="tag-text">分布式</span>
                 </span>
-    
-    <!-- <li class="listing-item">
-    <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-    <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-    </li> -->
-    <div class="post-preview">
-        <a href="/2018/08/23/distributed_consensus-1/">
-            <h2 class="post-title">
-                分布式一致性-Paxos
-            </h2>
-            
-        </a>
-        <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-    </div>
     
     <!-- <li class="listing-item">
     <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
@@ -259,9 +245,9 @@
     <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
     </li> -->
     <div class="post-preview">
-        <a href="/2018/09/11/distributed_consensus-3/">
+        <a href="/2018/08/23/distributed_consensus-1/">
             <h2 class="post-title">
-                分布式一致性-Raft
+                分布式一致性-Paxos
             </h2>
             
         </a>
@@ -282,6 +268,20 @@
         <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
     </div>
     
+    <!-- <li class="listing-item">
+    <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
+    <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
+    </li> -->
+    <div class="post-preview">
+        <a href="/2018/09/11/distributed_consensus-3/">
+            <h2 class="post-title">
+                分布式一致性-Raft
+            </h2>
+            
+        </a>
+        <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
+    </div>
+    
 </div>
 
 <div class="one-tag-list">
@@ -294,9 +294,9 @@
     <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
     </li> -->
     <div class="post-preview">
-        <a href="/2018/11/07/mq-1/">
+        <a href="/2018/10/31/mq-0/">
             <h2 class="post-title">
-                中间件之MQ-对比篇
+                中间件之MQ-基础篇
             </h2>
             
         </a>
@@ -308,9 +308,9 @@
     <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
     </li> -->
     <div class="post-preview">
-        <a href="/2018/10/31/mq-0/">
+        <a href="/2018/11/07/mq-1/">
             <h2 class="post-title">
-                中间件之MQ-基础篇
+                中间件之MQ-对比篇
             </h2>
             
         </a>
@@ -380,7 +380,7 @@
     <div class="post-preview">
         <a href="/2018/11/04/stressTesting/">
             <h2 class="post-title">
-                性能压测
+                记一次性能压测
             </h2>
             
         </a>
