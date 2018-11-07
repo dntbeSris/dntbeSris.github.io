@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="一个懒人， 做点记录。">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        Netty简介 - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> 一个懒人，心态很丧。 </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.png" />
+        </div>
+        <div class="name">
+            <i>很懒，很丧</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Netty核心组件"><span class="toc-text">Netty核心组件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ChannelHandler"><span class="toc-text">ChannelHandler</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#两个重要的ChannelHandler子接口："><span class="toc-text">两个重要的ChannelHandler子接口：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#资源管理"><span class="toc-text">资源管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ChnnelPipeline"><span class="toc-text">ChnnelPipeline</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Netty编解码器"><span class="toc-text">Netty编解码器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Netty数据容器ByteBuf"><span class="toc-text">Netty数据容器ByteBuf</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ByteBuf一些API"><span class="toc-text">ByteBuf一些API</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ByteBufHolder"><span class="toc-text">ByteBufHolder</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ByteBufAllocatior-Netty提供两种缓存分配方式，池化与非池化，类图如下"><span class="toc-text">ByteBufAllocatior,Netty提供两种缓存分配方式，池化与非池化，类图如下</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#引用计数"><span class="toc-text">引用计数</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> 一个懒人，心态很丧。 </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        Netty简介
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2018-08-11 02:16:24</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Netty" title="Netty">Netty</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h3 id="Netty核心组件"><a href="#Netty核心组件" class="headerlink" title="Netty核心组件"></a>Netty核心组件</h3><ul>
+<li>Channel：封装了NIO的Channel,相当于数据载体，提供打开，关闭连接，读写数据等基本I/O操作。</li>
+<li>EventLoopGroup：继承自ScheduleServiceExecutor,相当与线程池，管理EventLoop,每个EventLoop对应一个线程</li>
+<li>EventLoop：一个Channel生命周期内注册一个EventLoop，一个EventLoop分配给一个或多个Channel,I/O事件处理器。</li>
+<li>ChannelFuture:继承自juc的Future，提供异步I/O操作，addListener()方法注册一个ChannelFutureListner。</li>
+<li>ChannelHandler:充当所有出入站数据的容器，处理应用程序逻辑。</li>
+<li>ChannelPipeline:管道架构，当Channel被创建时，自动分配一个ChannelPipeline，然后经过ChannelPipeline中的ChannelHandler链对数据进行处理，ChannelHandler被安装注册到ChannelPipeline的过程如下：</li>
+</ul>
+<ol>
+<li>实现ChannelInitailizer接口</li>
+<li>注册到ServerBootstrap/Bootstrap</li>
+<li>调用ChannelInitializer.initChannel方法</li>
+<li>ChannelInitializer在ChannelPipeline中安装一组自定义的ChannelHandler</li>
+<li>ChannelInitializer 将它自己从 ChannelPipeline 中移除<blockquote>
+<p>ServerBootstrap需要两个EventLoopGroup,Bootstrap需要一个EventloopGroup,<br>这是因为服务端要处理两种类型的Channel,其中一个EventLoopGroup负责处理ServerChannel，用来监听链接；另一个负责处理Channel，用来处理客户端连接事件。</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="ChannelHandler"><a href="#ChannelHandler" class="headerlink" title="ChannelHandler"></a>ChannelHandler</h3><h4 id="两个重要的ChannelHandler子接口："><a href="#两个重要的ChannelHandler子接口：" class="headerlink" title="两个重要的ChannelHandler子接口："></a>两个重要的ChannelHandler子接口：</h4><ul>
+<li>ChannelInboundHandler :处理入站数据以及各种状态变化。</li>
+<li>ChannelOutboundHandler ：处理出站数据并且可拦截所有操作。</li>
+</ul>
+<p>ChannelHandler相关类图如下：<br><img src="" alt="image"></p>
+<h3 id="资源管理"><a href="#资源管理" class="headerlink" title="资源管理"></a>资源管理</h3><p> <strong>在调用</strong><br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chnnelInboundHandler.channelRead();</span><br></pre></td></tr></table></figure></p>
+<p><strong>或者</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channelOutboundHandler.write();</span><br></pre></td></tr></table></figure></p>
+<p><strong>时，应正确使用引用计数来释放资源，否则容易造成内存泄露。在jvm启动参数添加如下值来开启Netty内存泄漏检测：</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -Dio.netty.leakDetectionLevel=ADVANCED;</span><br></pre></td></tr></table></figure></p>
+<p><strong>Netty四个内存检测级别如下表:</strong></p>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DISABLED</td>
+<td>禁用泄漏检测。只有在详尽的测试之后才应设置为这个值</td>
+</tr>
+<tr>
+<td>SIMPLE</td>
+<td>使用 1%的默认采样率检测并报告任何发现的泄露。这是默认级别，适合绝大部分的情况</td>
+</tr>
+<tr>
+<td>ADVANCED</td>
+<td>使用默认的采样率，报告所发现的任何的泄露以及对应的消息被访问的位置</td>
+</tr>
+<tr>
+<td>PARANOID</td>
+<td>类似于 ADVANCED，但是其将会对每次（对消息的）访问都进行采样。这对性能将会有很大的影响，应该只在调试阶段使用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>看看Netty种ChannelInboundHandler和ChannelOutboundHandler的子类是如何处理入站和出站消息的。</strong></p>
+<ul>
+<li><strong>ChannelInboundHandler子类SimpleChannelInboundHandler的channelRead()源码如下</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception &#123;</span><br><span class="line">        boolean release = true;</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            if(this.acceptInboundMessage(msg)) &#123;</span><br><span class="line">                this.channelRead0(ctx, msg);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                release = false;</span><br><span class="line">                ctx.fireChannelRead(msg);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            if(this.autoRelease &amp;&amp; release) &#123;</span><br><span class="line">                ReferenceCountUtil.release(msg);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>需要注意上面的两个方法。一个是fireChannelRead()，其作用是将数据传给下一个ChannelHandler处理。而finnaly里面的ReferenceCountUtil就是利用引用计数来释放资源。</p>
+</blockquote>
+<ul>
+<li><strong>ChannelOutboundHandler子类SslHandler的write()源码如下</strong><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception &#123;</span><br><span class="line">        if(!(msg instanceof ByteBuf)) &#123;</span><br><span class="line">            UnsupportedMessageTypeException exception = new UnsupportedMessageTypeException(msg, new Class[]&#123;ByteBuf.class&#125;);</span><br><span class="line">            ReferenceCountUtil.safeRelease(msg);</span><br><span class="line">            promise.setFailure(exception);</span><br><span class="line">        &#125; else if(this.pendingUnencryptedWrites == null) &#123;</span><br><span class="line">            ReferenceCountUtil.safeRelease(msg);</span><br><span class="line">            promise.setFailure(newPendingWritesNullException());</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            this.pendingUnencryptedWrites.add((ByteBuf)msg, promise);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>引用计数释放资源不用多说了，重点关注promise.setFailure()方法，看源码可知ChannelPromise继承自ChannelFuture，其主要作用是通知ChannelFuture,并notify其中的ChannelFutureListener进行消息处理的通知。</p>
+</blockquote>
+<h3 id="ChnnelPipeline"><a href="#ChnnelPipeline" class="headerlink" title="ChnnelPipeline"></a>ChnnelPipeline</h3><blockquote>
+<p>ChannelPipeline是ChannelHandler处理链的容器。其只要核心API如下接口所示,主要是用来添加修改替换删除ChannelHandler。ChannelHandler链是一个链表结构，处理链严格按照ChannelHandler添加进ChannelPipeline的先后次序执行。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">public interface ChannelPipeline extends ChannelInboundInvoker, ChannelOutboundInvoker, Iterable&lt;Entry&lt;String, ChannelHandler&gt;&gt; &#123;</span><br><span class="line">    ChannelPipeline addFirst(String var1, ChannelHandler var2);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addFirst(EventExecutorGroup var1, String var2, ChannelHandler var3);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addLast(String var1, ChannelHandler var2);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addLast(EventExecutorGroup var1, String var2, ChannelHandler var3);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addBefore(String var1, String var2, ChannelHandler var3);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addBefore(EventExecutorGroup var1, String var2, String var3, ChannelHandler var4);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addAfter(String var1, String var2, ChannelHandler var3);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addAfter(EventExecutorGroup var1, String var2, String var3, ChannelHandler var4);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addFirst(ChannelHandler... var1);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addFirst(EventExecutorGroup var1, ChannelHandler... var2);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addLast(ChannelHandler... var1);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline addLast(EventExecutorGroup var1, ChannelHandler... var2);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline remove(ChannelHandler var1);</span><br><span class="line"></span><br><span class="line">    ChannelHandler remove(String var1);</span><br><span class="line"></span><br><span class="line">    &lt;T extends ChannelHandler&gt; T remove(Class&lt;T&gt; var1);</span><br><span class="line"></span><br><span class="line">    ChannelHandler removeFirst();</span><br><span class="line"></span><br><span class="line">    ChannelHandler removeLast();</span><br><span class="line"></span><br><span class="line">    ChannelPipeline replace(ChannelHandler var1, String var2, ChannelHandler var3);</span><br><span class="line"></span><br><span class="line">    ChannelHandler replace(String var1, String var2, ChannelHandler var3);</span><br><span class="line"></span><br><span class="line">    &lt;T extends ChannelHandler&gt; T replace(Class&lt;T&gt; var1, String var2, ChannelHandler var3);</span><br><span class="line"></span><br><span class="line">    ChannelHandler first();</span><br><span class="line"></span><br><span class="line">    ChannelHandlerContext firstContext();</span><br><span class="line"></span><br><span class="line">    ChannelHandler last();</span><br><span class="line"></span><br><span class="line">    ChannelHandlerContext lastContext();</span><br><span class="line"></span><br><span class="line">    ChannelHandler get(String var1);</span><br><span class="line"></span><br><span class="line">    &lt;T extends ChannelHandler&gt; T get(Class&lt;T&gt; var1);</span><br><span class="line"></span><br><span class="line">    ChannelHandlerContext context(ChannelHandler var1);</span><br><span class="line"></span><br><span class="line">    ChannelHandlerContext context(String var1);</span><br><span class="line"></span><br><span class="line">    ChannelHandlerContext context(Class&lt;? extends ChannelHandler&gt; var1);</span><br><span class="line"></span><br><span class="line">    Channel channel();</span><br><span class="line"></span><br><span class="line">    List&lt;String&gt; names();</span><br><span class="line"></span><br><span class="line">    Map&lt;String, ChannelHandler&gt; toMap();</span><br><span class="line"></span><br><span class="line">    ChannelPipeline fireChannelRegistered();</span><br><span class="line"></span><br><span class="line">    ChannelPipeline fireChannelUnregistered();</span><br><span class="line"></span><br><span class="line">    ChannelPipeline fireChannelActive();</span><br><span class="line"></span><br><span class="line">    ChannelPipeline fireChannelInactive();</span><br><span class="line"></span><br><span class="line">    ChannelPipeline fireExceptionCaught(Throwable var1);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline fireUserEventTriggered(Object var1);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline fireChannelRead(Object var1);</span><br><span class="line"></span><br><span class="line">    ChannelPipeline fireChannelReadComplete();</span><br><span class="line"></span><br><span class="line">    ChannelPipeline fireChannelWritabilityChanged();</span><br><span class="line"></span><br><span class="line">    ChannelPipeline flush();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>需要注意的是，ChannelHandler都是有其所属的EventLoop进行逻辑处理，以及传递给下一个ChannelHandler，前面提到了，EventLoop是一个线程，所以，不要阻塞ChannelPipeline中的ChannelHandler，可以由API看出，ChannelPipeline的核心API就是ChannelHandler的添加，替换，删除等操作，且addHandler()接受一个EventExecutorGroup参数，EventExecutorGroup继承自juc的ScheduleExecutorService,本质上是一个线程次，所以，可将添加的ChannelHandler交给其处理，从而从EventLoop中释放出来。带fire前缀的API是将Channel传递给下一个ChannelHandler处理，并执行其生命周期。</strong></p>
+</blockquote>
+<h3 id="Netty编解码器"><a href="#Netty编解码器" class="headerlink" title="Netty编解码器"></a>Netty编解码器</h3><p><strong><em>编解码器即将入站出站数据进行编码转换成正确的格式。所以，解码器继承自ChannelInboundHandler，而编码器继承自ChannelOutboudHandler,很好理解，入站数据为字节类型，需要解码成程序需要的类型，编码器正好相反。下面是编解码器类图：</em></strong></p>
+<p><img src="" alt="image"></p>
+<p><strong>介绍几个重要的编解码器</strong></p>
+<p><strong><em>基于分隔分协议</em></strong></p>
+<p><strong><em>基于长度协议</em></strong></p>
+<p><strong><em>写大型数据</em></strong></p>
+<p><strong><em>序列化</em></strong></p>
+<h3 id="Netty数据容器ByteBuf"><a href="#Netty数据容器ByteBuf" class="headerlink" title="Netty数据容器ByteBuf"></a>Netty数据容器ByteBuf</h3><blockquote>
+<p>ByteBuf 提供了对NIO中ByteBuffer的封装，ByteBuf提供三种模式。  </p>
+</blockquote>
+<p>堆缓存，即数据存储在jvm堆内存中，相当于nio中的ByteBuffer.allocate(int c);<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ByteBuf heapBuf = Unpooled.buffer()</span><br></pre></td></tr></table></figure></p>
+<p>直接缓存，直接存储在本机内存，相当于nio中的ByteBuffer.allcateDirect(int c);<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ByteVuf directBuf = Unpooled.directBuffer();</span><br></pre></td></tr></table></figure></p>
+<p>复合缓存区。通常，我们自定义的应用层协议都是如下方式。<br><img src="[object Object]" alt="image"></p>
+<h4 id="ByteBuf一些API"><a href="#ByteBuf一些API" class="headerlink" title="ByteBuf一些API"></a>ByteBuf一些API</h4><ul>
+<li>copy(),复制为一个新的ByteBuf,不共享。</li>
+<li>slice(),保持对当前ByteBuf的引用，共享。</li>
+<li>读写操作，get()于set()，从当前索引开始，不改变索引位置；read()于write()，从当前索引开始，改变索引位置</li>
+</ul>
+<h4 id="ByteBufHolder"><a href="#ByteBufHolder" class="headerlink" title="ByteBufHolder"></a>ByteBufHolder</h4><ul>
+<li>content(),返回当前ByteBuf,</li>
+<li>copy()，深拷贝，复制为一个新的ByteBuf,不共享。</li>
+<li>duplicate(),浅拷贝，保持当前ByteBuf的引用，共享。</li>
+</ul>
+<h4 id="ByteBufAllocatior-Netty提供两种缓存分配方式，池化与非池化，类图如下"><a href="#ByteBufAllocatior-Netty提供两种缓存分配方式，池化与非池化，类图如下" class="headerlink" title="ByteBufAllocatior,Netty提供两种缓存分配方式，池化与非池化，类图如下"></a>ByteBufAllocatior,Netty提供两种缓存分配方式，池化与非池化，类图如下</h4><p><img src="" alt="image"></p>
+<h4 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h4><blockquote>
+<p>Netty引用计数</p>
+</blockquote>
+
+        
+        <div id="comment-container">
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</html>

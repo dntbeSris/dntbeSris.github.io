@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="一个懒人， 做点记录。">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        浅谈线程池——ThreadPoolExecutor源码浅析(二) - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> 一个懒人，心态很丧。 </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.png" />
+        </div>
+        <div class="name">
+            <i>很懒，很丧</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#入口函数execute-Runnable-command"><span class="toc-text">入口函数execute(Runnable command)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#核心函数addWorker-Runnable-firstTask-boolean-core"><span class="toc-text">核心函数addWorker(Runnable firstTask,boolean core)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Worker内部类"><span class="toc-text">Worker内部类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#整体流程"><span class="toc-text">整体流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> 一个懒人，心态很丧。 </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        浅谈线程池——ThreadPoolExecutor源码浅析(二)
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2018-07-28 00:24:42</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Java" title="Java">Java</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <p><em>这一节就是分析ThreadPoolExecutor中的几个核心函数，分析完这几个函数之后，对于构造函数中的参数也就知其所以然了。</em></p>
+<h4 id="入口函数execute-Runnable-command"><a href="#入口函数execute-Runnable-command" class="headerlink" title="入口函数execute(Runnable command)"></a>入口函数execute(Runnable command)</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public void execute(Runnable command) &#123;</span><br><span class="line">        if (command == null)</span><br><span class="line">            throw new NullPointerException();</span><br><span class="line"></span><br><span class="line">        int c = ctl.get();</span><br><span class="line">        //正在运行的线程数量小于 corePoolSize</span><br><span class="line">        if (workerCountOf(c) &lt; corePoolSize) &#123;</span><br><span class="line">            if (addWorker(command, true))</span><br><span class="line">                return;</span><br><span class="line">            c = ctl.get();</span><br><span class="line">        &#125;</span><br><span class="line">        //当前线程数大于corePoolSize，则将其加入queue</span><br><span class="line">        if (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;</span><br><span class="line">            int recheck = ctl.get();</span><br><span class="line">            if (! isRunning(recheck) &amp;&amp; remove(command))</span><br><span class="line">                reject(command);</span><br><span class="line">            else if (workerCountOf(recheck) == 0)</span><br><span class="line">                addWorker(null, false);</span><br><span class="line">        &#125;</span><br><span class="line">        //如果假如queue失败了呢?注意这里addworker第二个参数为false，即当前线程数只要不大于maximumPoolSize，就可以放入workSet中</span><br><span class="line">        else if (!addWorker(command, false))</span><br><span class="line">            reject(command);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>其实注释已经解释过了，三个判断：首先当前工作线程数小于corePoolSize，调用addWorker(command, true)；否则，将任务放入队列；但是如果加入队列失败，即队列已满了，继续调用addWorker(command, false)。不难看出，要了解具体逻辑，addWorker是一个关键的函数啊，注意，第一次调用addWorker，第二个参数传的是true，而第二次传的是false。那么看看addWorker函数吧。</p>
+</blockquote>
+<h4 id="核心函数addWorker-Runnable-firstTask-boolean-core"><a href="#核心函数addWorker-Runnable-firstTask-boolean-core" class="headerlink" title="核心函数addWorker(Runnable firstTask,boolean core)"></a>核心函数addWorker(Runnable firstTask,boolean core)</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">private boolean addWorker(Runnable firstTask, boolean core) &#123;</span><br><span class="line">       retry:</span><br><span class="line">       //CAS自旋</span><br><span class="line">       for (;;) &#123;</span><br><span class="line">           </span><br><span class="line">           int c = ctl.get();</span><br><span class="line">           int rs = runStateOf(c);</span><br><span class="line"></span><br><span class="line">           //线程关闭，并且队列中的任务执行完了，直接返回false</span><br><span class="line">           if (rs &gt;= SHUTDOWN &amp;&amp;</span><br><span class="line">               ! (rs == SHUTDOWN &amp;&amp;</span><br><span class="line">                  firstTask == null &amp;&amp;</span><br><span class="line">                  ! workQueue.isEmpty()))</span><br><span class="line">               return false;</span><br><span class="line">           //CAS自旋</span><br><span class="line">           for (;;) &#123;</span><br><span class="line">               int wc = workerCountOf(c);</span><br><span class="line">               //当前线程数大于等于大容量或者大于等于核心线程数，最大线程数(取决于core值，这里就和execute方法里传进来的值相关了。）直接返回false</span><br><span class="line">               if (wc &gt;= CAPACITY ||</span><br><span class="line">                   wc &gt;= (core ? corePoolSize : maximumPoolSize))</span><br><span class="line">                   return false;</span><br><span class="line">               //以上条件都不满足，说明任务可以进入works。将线程数cas自增，推出自旋。</span><br><span class="line">               if (compareAndIncrementWorkerCount(c))</span><br><span class="line">                   break retry;</span><br><span class="line">               c = ctl.get();  // Re-read ctl</span><br><span class="line">               if (runStateOf(c) != rs)</span><br><span class="line">                   continue retry;</span><br><span class="line">               // else CAS failed due to workerCount change; retry inner loop</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       boolean workerStarted = false;</span><br><span class="line">       boolean workerAdded = false;</span><br><span class="line">       Worker w = null;</span><br><span class="line">       try &#123;</span><br><span class="line">           //注意这里的worker，就是juc并发工具的基础，AQS了/</span><br><span class="line">           w = new Worker(firstTask);</span><br><span class="line">           final Thread t = w.thread;</span><br><span class="line">           if (t != null) &#123;</span><br><span class="line">               final ReentrantLock mainLock = this.mainLock;</span><br><span class="line">               mainLock.lock();</span><br><span class="line">               try &#123;</span><br><span class="line">                   // Recheck while holding lock.</span><br><span class="line">                   // Back out on ThreadFactory failure or if</span><br><span class="line">                   // shut down before lock acquired.</span><br><span class="line">                   int rs = runStateOf(ctl.get());</span><br><span class="line"></span><br><span class="line">                   if (rs &lt; SHUTDOWN ||</span><br><span class="line">                       (rs == SHUTDOWN &amp;&amp; firstTask == null)) &#123;</span><br><span class="line">                       if (t.isAlive()) // precheck that t is startable</span><br><span class="line">                           throw new IllegalThreadStateException();</span><br><span class="line">                       //将work加入set。</span><br><span class="line">                       workers.add(w);</span><br><span class="line">                       int s = workers.size();</span><br><span class="line">                       if (s &gt; largestPoolSize)</span><br><span class="line">                           largestPoolSize = s;</span><br><span class="line">                       workerAdded = true;</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125; finally &#123;</span><br><span class="line">                   mainLock.unlock();</span><br><span class="line">               &#125;</span><br><span class="line">               if (workerAdded) &#123;</span><br><span class="line">                   //启动线程，那么启动的这个线程work由做了什么事情呢？</span><br><span class="line">                   t.start();</span><br><span class="line">                   workerStarted = true;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125; finally &#123;</span><br><span class="line">           if (! workerStarted)</span><br><span class="line">               addWorkerFailed(w);</span><br><span class="line">       &#125;</span><br><span class="line">       return workerStarted;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>核心逻辑就是判断状态，然后根据传进来的第二个boolean值执行逻辑，也就是说如果core=true，判断当前工作线程数小于corePoolSize；如果core=false，判断当前工作线程数小于maxPoolSize；条件成立，执行Worker中的线程。那么什么时候执行队列中的线程呢？队列的用处又在哪呢？</p>
+</blockquote>
+<h4 id="Worker内部类"><a href="#Worker内部类" class="headerlink" title="Worker内部类"></a>Worker内部类</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void run() &#123;</span><br><span class="line">    runWorker(this);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Worker是一个内部类，继承自AQS(AbstractQueuedSynchronizer)，什么是AQS呢？很多并发工具都是基于AQS实现的，比如ReentranLock,CountLatchDown,CycleBarrir等，这里暂不详细讨论，以后可以单独分析。这里主要看Worker线程的run方法执行了什么逻辑呢，其实只是简单调用了 runWorker(this)外部方法,那看看这个方法吧!</p>
+</blockquote>
+<p>#### </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">final void runWorker(Worker w) &#123;</span><br><span class="line">        Thread wt = Thread.currentThread();</span><br><span class="line">        Runnable task = w.firstTask;</span><br><span class="line">        w.firstTask = null;</span><br><span class="line">        w.unlock(); // allow interrupts</span><br><span class="line">        boolean completedAbruptly = true;</span><br><span class="line">        try &#123;</span><br><span class="line">            //如果当前task不为空，则直接执行task,否则执行getTak()，执行其返回的task。那么getTask()执行了什么逻辑呢？</span><br><span class="line">            while (task != null || (task = getTask()) != null) &#123;</span><br><span class="line">                w.lock();</span><br><span class="line">                // If pool is stopping, ensure thread is interrupted;</span><br><span class="line">                // if not, ensure thread is not interrupted.  This</span><br><span class="line">                // requires a recheck in second case to deal with</span><br><span class="line">                // shutdownNow race while clearing interrupt</span><br><span class="line">                if ((runStateAtLeast(ctl.get(), STOP) ||</span><br><span class="line">                     (Thread.interrupted() &amp;&amp;</span><br><span class="line">                      runStateAtLeast(ctl.get(), STOP))) &amp;&amp;</span><br><span class="line">                    !wt.isInterrupted())</span><br><span class="line">                    wt.interrupt();</span><br><span class="line">                try &#123;</span><br><span class="line">                    beforeExecute(wt, task);</span><br><span class="line">                    Throwable thrown = null;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        task.run();</span><br><span class="line">                    &#125; catch (RuntimeException x) &#123;</span><br><span class="line">                        thrown = x; throw x;</span><br><span class="line">                    &#125; catch (Error x) &#123;</span><br><span class="line">                        thrown = x; throw x;</span><br><span class="line">                    &#125; catch (Throwable x) &#123;</span><br><span class="line">                        thrown = x; throw new Error(x);</span><br><span class="line">                    &#125; finally &#123;</span><br><span class="line">                        afterExecute(task, thrown);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; finally &#123;</span><br><span class="line">                    task = null;</span><br><span class="line">                    w.completedTasks++;</span><br><span class="line">                    w.unlock();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            completedAbruptly = false;</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            processWorkerExit(w, completedAbruptly);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>核心逻辑就是当前传进来的任务不为空直接执行，为空的话执行getTask函数返回的任务，那么task什么时候会为空呢？就是工作线程执行完毕，并且线程池状态小于STOP。方法中还有两个函数beforeExecute和afterExecute，这两个方法的body为空，我们在自定义线程池的时候可以重写这两个方法，作用也就不言而喻了，可以在任务执行前后执行类似计数器或者一些其他逻辑。getTask返回的任务又是啥呢？其实就是从队列中取出一个任务了。代码如下：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">private Runnable getTask() &#123;</span><br><span class="line">        boolean timedOut = false; // Did the last poll() time out?</span><br><span class="line"></span><br><span class="line">        for (;;) &#123;</span><br><span class="line">            int c = ctl.get();</span><br><span class="line">            int rs = runStateOf(c);</span><br><span class="line"></span><br><span class="line">            // Check if queue empty only if necessary.</span><br><span class="line">            if (rs &gt;= SHUTDOWN &amp;&amp; (rs &gt;= STOP || workQueue.isEmpty())) &#123;</span><br><span class="line">                decrementWorkerCount();</span><br><span class="line">                return null;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            int wc = workerCountOf(c);</span><br><span class="line"></span><br><span class="line">            // Are workers subject to culling?</span><br><span class="line">            boolean timed = allowCoreThreadTimeOut || wc &gt; corePoolSize;</span><br><span class="line"></span><br><span class="line">            if ((wc &gt; maximumPoolSize || (timed &amp;&amp; timedOut))</span><br><span class="line">                &amp;&amp; (wc &gt; 1 || workQueue.isEmpty())) &#123;</span><br><span class="line">                if (compareAndDecrementWorkerCount(c))</span><br><span class="line">                    return null;</span><br><span class="line">                continue;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            try &#123;</span><br><span class="line">            //核心逻辑就是从队列中取出一个任务返回</span><br><span class="line">                Runnable r = timed ?</span><br><span class="line">                    workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :</span><br><span class="line">                    workQueue.take();</span><br><span class="line">                if (r != null)</span><br><span class="line">                    return r;</span><br><span class="line">                timedOut = true;</span><br><span class="line">            &#125; catch (InterruptedException retry) &#123;</span><br><span class="line">                timedOut = false;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h4 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h4><p><em>那么整个过程其实就已经很清晰了，首先工作线程数低于corePoolSize，线程立即得到执行，否则加入队列，但是队列中的任务不能立即得到执行，需要等待调度，如果队列满了，那么工作线程数低于maxPoolSize的话，任务也能立即得到执行，只有等任务执行完后，再去调度队列中的任务。</em></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p><em>通过分析线程池的构造函数参数的意思及其所控制的核心逻辑已经很清晰，剩下的其实就是线程池对于关闭，拒绝策略等实现细节了。</em></p>
+
+        
+        <div id="comment-container">
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</html>

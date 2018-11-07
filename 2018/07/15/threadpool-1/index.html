@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="一个懒人， 做点记录。">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        浅谈线程池——ThreadPoolExecutor源码浅析(一) - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> 一个懒人，心态很丧。 </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.png" />
+        </div>
+        <div class="name">
+            <i>很懒，很丧</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#基础变量"><span class="toc-text">基础变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#状态变量"><span class="toc-text">状态变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数量和状态控制"><span class="toc-text">数量和状态控制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> 一个懒人，心态很丧。 </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        浅谈线程池——ThreadPoolExecutor源码浅析(一)
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2018-07-15 23:44:22</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Java" title="Java">Java</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <p><em>在进行核心逻辑分析之前，先对线程池中的一些变量进行讲解，这很重要。因为线程调度无非就是对这些状态变量（临界区资源）进行判断，然后做出相应的调度策略。</em></p>
+<h4 id="基础变量"><a href="#基础变量" class="headerlink" title="基础变量"></a>基础变量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//比特位29</span><br><span class="line">private static final int COUNT_BITS = Integer.SIZE - 3;</span><br><span class="line">//线程池最大容量2^29 -1,二进制表示为:[00011111111111111111111111111111]</span><br><span class="line">private static final int CAPACITY   = (1 &lt;&lt; COUNT_BITS) - 1;</span><br></pre></td></tr></table></figure>
+<h4 id="状态变量"><a href="#状态变量" class="headerlink" title="状态变量"></a>状态变量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">// runState is stored in the high-order bits</span><br><span class="line">//如源码注释中所说，状态变量由二进制高位比特控制</span><br><span class="line">//RUNNING---111[29位补0]</span><br><span class="line">private static final int RUNNING    = -1 &lt;&lt; COUNT_BITS;</span><br><span class="line">//SHUTDOWN --- 000[29位补0]</span><br><span class="line">private static final int SHUTDOWN   =  0 &lt;&lt; COUNT_BITS;</span><br><span class="line">//STOP --- 001[29位补0]</span><br><span class="line">private static final int STOP       =  1 &lt;&lt; COUNT_BITS;</span><br><span class="line">//TIDYING --- 010[29位补0]</span><br><span class="line">private static final int TIDYING    =  2 &lt;&lt; COUNT_BITS;</span><br><span class="line">//TERMINATED --- 011[29位补0]</span><br><span class="line">private static final int TERMINATED =  3 &lt;&lt; COUNT_BITS;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>线程池维护了五种状态，由二进制中的高三位控制，为什么是高三位呢？其实也很好理解了，如果是高二位控制，那么就只有[11]、[10]、[01]、[00]四种状态，所以向上取整的话就是高三位了。那么这这五种状态分别代表什么含义呢？  </p>
+</blockquote>
+<ul>
+<li>RUNNING：接受新任务并且处理已经进入阻塞队列的任务</li>
+<li>SHUTDOWN：不接受新任务，但是处理已经进入阻塞队列的任务</li>
+<li>STOP： 不接受新任务，不处理已经进入阻塞队列的任务并且中断正在运行的任务</li>
+<li>TIDYING：所有的任务都已经终止，workerCount为0， 线程转化为TIDYING状态并且调用terminated钩子函数</li>
+<li>TERMINATED：terminated钩子函数已经运行完成</li>
+</ul>
+<h4 id="数量和状态控制"><a href="#数量和状态控制" class="headerlink" title="数量和状态控制"></a>数量和状态控制</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//初始值为：111[29位补0] | 000[29位补1] = 0</span><br><span class="line">private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ctl是一个原子整形变量，所以是线程安全的。这个变量高三位控制着线程池状态，低29位控制着线程池内的工作线程数。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">private static int runStateOf(int c)     &#123; return c &amp; ~CAPACITY; &#125;</span><br><span class="line">private static int workerCountOf(int c)  &#123; return c &amp; CAPACITY; &#125;</span><br><span class="line">private static int ctlOf(int rs, int wc) &#123; return rs | wc; &#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一个函数runStateOf是用来计算运行状态的。~CAPACITY即CAPACITY取反，二进制表示为111[0000…低29位全为0…0000],那么如果一个数字与之进行且操作低29位就可以不用考虑了，不管怎样全位0，只有高三位会改变，这高三位也就是状态控制位。workerCountOf函数和runStateOf正好互补了，高三位位0，不变化，低29位是线程数量控制位，且CAPACITY低29位全为1，也就是说这个函数返回的就是入参的值，但是入参的值小于或等于CAPACITY，所以，我认为workerCountOf函数的主要功能其实就是控制线程池内的工作线程数，或者说maxPoolSize不能大于CAPACITY吧！</p>
+</blockquote>
+<blockquote>
+<p>ctlOf(int rs, int wc)函数就是控制函数了，其逻辑就是rs(runState)和wc(workCount)取或了，什么意思呢?先看一下原子变量ctl的初始值是怎么计算出来的ctlOf(RUNNING, 0)，其意思就是RUNNING状态的工作线程数为0，因为runState状态位低29位都是0，而workCount高3位的值都是0，两个值取或后的结果值的高三位值取rs的值，低29位的值取wc的值，所以这个函数的本质就是当前处于rs状态的线程有wc个。举个例子：</p>
+</blockquote>
+<p><strong>rs = RUNNING,二进制表示为111 [00000000000000000000000000000];<br>wc = 100，二进制表示为000[00000000000000000000001100100];<br>rs | wc 的值为 [111][00000000000000000000001100100],即高三位取rs，低29为取wc，其意思就是处于RUNNING状态的线程有100个。</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">private static boolean runStateLessThan(int c, int s) &#123;</span><br><span class="line">    return c &lt; s;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private static boolean runStateAtLeast(int c, int s) &#123;</span><br><span class="line">    return c &gt;= s;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private static boolean isRunning(int c) &#123;</span><br><span class="line">    return c &lt; SHUTDOWN;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Attempts to CAS-increment the workerCount field of ctl.</span><br><span class="line"> */</span><br><span class="line">private boolean compareAndIncrementWorkerCount(int expect) &#123;</span><br><span class="line">    return ctl.compareAndSet(expect, expect + 1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Attempts to CAS-decrement the workerCount field of ctl.</span><br><span class="line"> */</span><br><span class="line">private boolean compareAndDecrementWorkerCount(int expect) &#123;</span><br><span class="line">    return ctl.compareAndSet(expect, expect - 1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Decrements the workerCount field of ctl. This is called only on</span><br><span class="line"> * abrupt termination of a thread (see processWorkerExit). Other</span><br><span class="line"> * decrements are performed within getTask.</span><br><span class="line"> */</span><br><span class="line">private void decrementWorkerCount() &#123;</span><br><span class="line">    do &#123;&#125; while (! compareAndDecrementWorkerCount(ctl.get()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>再上面的一些函数就是状态判断和原子变量ctl的赋值操作，看函数名和注释就顾名思义了，不做过多解释了！</p>
+</blockquote>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p><em>再jdk源码中，有很多地方都用一个二进制比特来控制程序的不同变量，我想理解其中的思想还是很重要的，所以单独拿出来记录，以后如果分析其他jdk源码的时候碰到这种运算就很好理解了!</em></p>
+
+        
+        <div id="comment-container">
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</html>

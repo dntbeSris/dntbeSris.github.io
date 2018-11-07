@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="一个懒人， 做点记录。">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        浅谈线程池——Java中的线程池 - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> 一个懒人，心态很丧。 </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.png" />
+        </div>
+        <div class="name">
+            <i>很懒，很丧</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#什么是线程池？"><span class="toc-text">什么是线程池？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#线程的占用资源"><span class="toc-text">线程的占用资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#线程切换开销"><span class="toc-text">线程切换开销</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java线程池"><span class="toc-text">Java线程池</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JDK中的常用线程池"><span class="toc-text">JDK中的常用线程池</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> 一个懒人，心态很丧。 </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        浅谈线程池——Java中的线程池
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2018-07-02 00:24:16</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Java" title="Java">Java</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h4 id="什么是线程池？"><a href="#什么是线程池？" class="headerlink" title="什么是线程池？"></a>什么是线程池？</h4><blockquote>
+<p>一种线程使用模式。线程过多会带来调度开销，进而影响缓存局部性和整体性能。而线程池维护着多个线程，等待着监督管理者分配可并发执行的任务。这避免了在处理短时间任务时创建与销毁线程的代价。线程池不仅能够保证内核的充分利用，还能防止过分调度。可用线程数量应该取决于可用的并发处理器、处理器内核、内存、网络sockets等的数量。 例如，线程数一般取cpu数量+2比较合适，线程数过多会导致额外的线程切换开销。——<strong>摘自维基百科</strong>   </p>
+</blockquote>
+<p><strong>通俗的说：线程池就是通过特定的策略来管理线程的创建，销毁，调度等工作。当然关于线程数设置多少合适这个问题其实要根据任务类型来说，一般计算密集型任务，取CPU数即可，I/O密集型任务理论上可以设置大一点，这个可以以后具体讨论。</strong>  </p>
+<h4 id="线程的占用资源"><a href="#线程的占用资源" class="headerlink" title="线程的占用资源"></a>线程的占用资源</h4><blockquote>
+<p>现代操作系统中的线程模型：栈空间，寄存器，程序计数器，线程上下文状态等。<br>Java中的线程当然也是通过native方法调用的操作系统线程。</p>
+</blockquote>
+<h4 id="线程切换开销"><a href="#线程切换开销" class="headerlink" title="线程切换开销"></a>线程切换开销</h4><blockquote>
+<p>保留上下文状态以及恢复现场：线程A切换到线程B，需要保留线程A的状态(寄存器数据，程序计数&gt; 器等),以及恢复线程B的上下文状态执行线程B。具体参照<a href="https://zh.wikipedia.org/wiki/%E4%B8%8A%E4%B8%8B%E6%96%87%E4%BA%A4%E6%8F%9B" target="_blank" rel="noopener">维基百科</a></p>
+</blockquote>
+<h4 id="Java线程池"><a href="#Java线程池" class="headerlink" title="Java线程池"></a>Java线程池</h4><blockquote>
+<p>Java中的线程池：TreadPoolExecutor(corePoolSize, maxPoolSize,keepAliveTime, TimeUnit,queue);</p>
+</blockquote>
+<p><em>构造函数中参数的含义网上介绍一大堆，当然这里也稍微提一下。</em>  </p>
+<ul>
+<li>corePoolSize：核心线程数,核心线程会一直存活，当前工作线程数低于corePoolSize的话，进入线程池的任务立即得到执行。</li>
+<li>queueCapacity：任务队列容量（阻塞队列），当工作线程数量到达核心线程时，新任务会放在队列中排队等待执行。</li>
+<li>maxPoolSize：最大线程数，当工作线程数&gt;=corePoolSize，任务队列已满，工作线程数又小于maxPoolSize时，进入线程池的任务立即得到执行。</li>
+<li>keepAliveTime：线程空闲时间。</li>
+<li>allowCoreThreadTimeout：允许核心线程超时。</li>
+<li>rejectedExecutionHandler：线程数大于maxPoolSize时，新加入线程池的任务的拒绝策略。</li>
+</ul>
+<h4 id="JDK中的常用线程池"><a href="#JDK中的常用线程池" class="headerlink" title="JDK中的常用线程池"></a>JDK中的常用线程池</h4><ul>
+<li>Executors.newCachedThreadPool();</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public static ExecutorService newCachedThreadPool() &#123;</span><br><span class="line">    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,</span><br><span class="line">                                  60L, TimeUnit.SECONDS,</span><br><span class="line">                                  new SynchronousQueue&lt;Runnable&gt;());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>本质上就是一个容器为Integer.MAX_VALUE的线程池，理论上进入线程池的任务先加入阻塞队列等待线程池调度。当然，阻塞队列满了后的任务都能立即得到执行。</p>
+</blockquote>
+<ul>
+<li>Executors.newFixedThreadPool(10);</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) &#123;</span><br><span class="line">    return new ThreadPoolExecutor(nThreads, nThreads,</span><br><span class="line">                                  0L, TimeUnit.MILLISECONDS,</span><br><span class="line">                                  new LinkedBlockingQueue&lt;Runnable&gt;(),</span><br><span class="line">                                  threadFactory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>本质上就是一个容量为nThreads的定长的线程池了。</p>
+</blockquote>
+<ul>
+<li>Executors.newSingleThreadExecutor();</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public static ExecutorService newSingleThreadExecutor() &#123;</span><br><span class="line">    return new FinalizableDelegatedExecutorService</span><br><span class="line">        (new ThreadPoolExecutor(1, 1,</span><br><span class="line">                                0L, TimeUnit.MILLISECONDS,</span><br><span class="line">                                new LinkedBlockingQueue&lt;Runnable&gt;()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>只有一个任务能立即得到执行，其余的都进入队列等待调度，队列满了执行相应的拒绝策略。</p>
+</blockquote>
+<ul>
+<li>Executors.newScheduledThreadPool(100);</li>
+</ul>
+<blockquote>
+<p>定时任务调度器和上面的线程池不同，它继承自ThreadPoolExecutor,有自己的处理逻辑，暂不讨论了。</p>
+</blockquote>
+<p><em>那么线程池ThreadPoolExecutor究竟是如何管理和调度线程的呢？这些参数又在ThreadPoolExecutor的执行过程中怎么进行逻辑控制的呢？放在<a href="">源码解析篇</a>说吧。</em>  </p>
+
+        
+        <div id="comment-container">
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</html>
