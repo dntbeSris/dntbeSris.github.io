@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="一个懒人， 做点记录。">
+    <meta name="keyword" content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        Spring-cloud-alibaba初体验之Nacos - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> 一个懒人，心态很丧。 </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.png">
+        </div>
+        <div class="name">
+            <i>很懒，很丧</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>TAGS</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>ABOUT</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>SEARCH</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Nacos"><span class="toc-text">什么是Nacos?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何使用Nacos？"><span class="toc-text">如何使用Nacos？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> 一个懒人，心态很丧。 </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        Spring-cloud-alibaba初体验之Nacos
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2018-11-21 22:05:14</span></span>
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#Java,Spring-cluod,微服务" title="Java,Spring-cluod,微服务">Java,Spring-cluod,微服务</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <p><em>此系列不涉及实现原理，执行流程等稍微底层的知识，旨在使用Spring-clouod-alibaba各组建快速搭建一套分布式微服务框架。个人以为微服务的基础组件是服务的注册以及配置中心。而阿里摒弃了繁重的Zookeeper，采用新开源的Nacos作为服务注册发现中心，Nacos同样提供了配置中心的功能。有人认为注册中心与配置中心不应该耦合在一起，但是conusol不就是这么做的吗？当然在社区交流中有提到在可将注册中心与配置中分别单独启动，后续怎么样暂无法预期。在利用spring-cloud-alibaba的各个组建搭建一套微服务之前，还是先重点分析Nacos。</em></p>
+<hr>
+<h2 id="什么是Nacos"><a href="#什么是Nacos" class="headerlink" title="什么是Nacos?"></a>什么是Nacos?</h2><p>Nacos是一个应用的动态服务发现、配置管理和服务管理平台。Nacos采用raft分布式一致性算法，关于为什么摒弃zookeeper，raft与zab算法的区别与优劣可以另外阅读资料或者看我之前的博客作简单了解。关于Nacos的具体介绍可阅读官方文档：<a href="https://nacos.io。" target="_blank" rel="noopener">https://nacos.io。</a></p>
+<h2 id="如何使用Nacos？"><a href="#如何使用Nacos？" class="headerlink" title="如何使用Nacos？"></a>如何使用Nacos？</h2><ol>
+<li><p>首先<a href="">github</a>下载nacos，解压进入nacos根目录，可以看到以下几个文件夹。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">unzip nacos-server-$version.zip 或者 tar -xvf nacos-server-$version.tar.gz</span><br><span class="line">cd nacos &amp;&amp; ls</span><br><span class="line">bin  conf  data  LICENSE  logs  NOTICE  target</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>集群启动配置，简单介绍一下这几个文件夹的作用</p>
+</li>
+</ol>
+<ul>
+<li><strong>bin</strong>：启动nacos的shell或在cmd脚本，可以自定义一些jvm启动参数，如果jdk版本过新可能需要修改一些jvm参数，否则可能会报错。比如我的机器的ubuntu，jdk版本是openjdk10，就启动报错，修改一些jvm参数后成功启动。</li>
+<li><p><strong>conf</strong>：集群节点以及持久化方式配置。看一下conf下分别有哪些文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">  zjx@zjx-X550JK:~/app/nacos$ ls conf/</span><br><span class="line">application.properties          cluster.conf.example  nacos-mysql.sql</span><br><span class="line">application.properties.example  nacos-logback.xml     schema.sql</span><br></pre></td></tr></table></figure>
+<p>如果需要部署集群，则配置cluser.conf，将集群ip列表配置上即可。当然如果不做配置，默认以standalone即单机模式运行。要配置持久化方式为mysql的话，需要执行schema.sql，创建相应的数据库以及表结构。 然后在application.properties中配置mysq连接参数即可，如果不做配置，持久化方式莫认为derby。最后是loback日志配置。</p>
+</li>
+<li><strong>target</strong>:nacos应用程序的可执行jar包。</li>
+<li><strong>logs</strong>： 日志文件</li>
+</ul>
+<ol start="3">
+<li>在进行启动配置之后，就可以启动nacos了，linux下执行。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh startup.sh 或者 sh startup.sh -m standalone</span><br></pre></td></tr></table></figure>
+<p><strong>-m standalone</strong>即以单机模式运行。启动成功的界面如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">                                                        </span><br><span class="line">         ,--.                                           </span><br><span class="line">       ,--.&apos;|                                           </span><br><span class="line">   ,--,:  : |                                           Version: 0.4.0</span><br><span class="line">,`--.&apos;`|  &apos; :                       ,---.               Port: 8848</span><br><span class="line">|   :  :  | |                      &apos;   ,&apos;\   .--.--.    Console: http://localhost:8848/nacos/index.html</span><br><span class="line">:   |   \ | :  ,--.--.     ,---.  /   /   | /  /    &apos;   </span><br><span class="line">|   : &apos;  &apos;; | /       \   /     \.   ; ,. :|  :  /`./   </span><br><span class="line">&apos;   &apos; ;.    ;.--.  .-. | /    / &apos;&apos;   | |: :|  :  ;_         https://nacos.io</span><br><span class="line">|   | | \   | \__\/: . ..    &apos; / &apos;   | .; : \  \    `.  </span><br><span class="line">&apos;   : |  ; .&apos; ,&quot; .--.; |&apos;   ; :__|   :    |  `----.   \ </span><br><span class="line">|   | &apos;`--&apos;  /  /  ,.  |&apos;   | &apos;.&apos;|\   \  /  /  /`--&apos;  / </span><br><span class="line">&apos;   : |     ;  :   .&apos;   \   :    : `----&apos;  &apos;--&apos;.     /  </span><br><span class="line">;   |.&apos;     |  ,     .-./\   \  /            `--&apos;---&apos;   </span><br><span class="line">&apos;---&apos;        `--`---&apos;     `----&apos;</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>最后浏览器打开<a href="http://localhost:8848/nacos/index.html" target="_blank" rel="noopener">http://localhost:8848/nacos/index.htmlnacos主页</a>即可看到nacos控制界面如下图：</li>
+</ol>
+<p><img src="/images/nacos.png" alt="nacos主页"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>nacos的介绍和使用基本就是上面的内容，了解更多细节可以查阅<a href="https://nacos.io" target="_blank" rel="noopener">官网</a>。接下来会试着从源码角度解读nacos。</p>
+
+        
+        <div id="comment-container">
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</html>
